@@ -29,7 +29,7 @@ public class Node {
 	// this.walls[row][col] is true if there's a wall at (row, col)
 	//
 
-	public boolean[][] walls; // = new boolean[MAX_ROW][MAX_COL];
+	//public boolean[][] walls; // = new boolean[MAX_ROW][MAX_COL];
 	public char[][] boxes; // = new char[MAX_ROW][MAX_COL];
 	public char[][] goals; // = new char[MAX_ROW][MAX_COL];
 
@@ -44,9 +44,7 @@ public class Node {
 		this.parent = parent;
 		this.maxRow = maxRow;
 		this.maxCol = maxCol;
-		this.walls = new boolean[maxRow][maxCol];
-		System.err.println("Row is " + walls.length
-				+ " col is " + walls[0].length);
+		//this.walls = new boolean[maxRow][maxCol];
 		this.boxes = new char[maxRow][maxCol];
 		this.goals = new char[maxRow][maxCol];
 		if (parent == null) {
@@ -77,7 +75,7 @@ public class Node {
 		return true;
 	}
 
-	public ArrayList<Node> getExpandedNodes() {
+	public ArrayList<Node> getExpandedNodes(boolean[][] walls) {
 		ArrayList<Node> expandedNodes = new ArrayList<Node>(Command.EVERY.length);
 		for (Command c : Command.EVERY) {
 			// Determine applicability of action
@@ -86,7 +84,7 @@ public class Node {
 
 			if (c.actionType == Type.Move) {
 				// Check if there's a wall or box on the cell to which the agent is moving
-				if (this.cellIsFree(newAgentRow, newAgentCol)) {
+				if (this.cellIsFree(newAgentRow, newAgentCol, walls)) {
 					Node n = this.ChildNode();
 					n.action = c;
 					n.agentRow = newAgentRow;
@@ -99,7 +97,7 @@ public class Node {
 					int newBoxRow = newAgentRow + Command.dirToRowChange(c.dir2);
 					int newBoxCol = newAgentCol + Command.dirToColChange(c.dir2);
 					// .. and that new cell of box is free
-					if (this.cellIsFree(newBoxRow, newBoxCol)) {
+					if (this.cellIsFree(newBoxRow, newBoxCol, walls)) {
 						Node n = this.ChildNode();
 						n.action = c;
 						n.agentRow = newAgentRow;
@@ -111,7 +109,7 @@ public class Node {
 				}
 			} else if (c.actionType == Type.Pull) {
 				// Cell is free where agent is going
-				if (this.cellIsFree(newAgentRow, newAgentCol)) {
+				if (this.cellIsFree(newAgentRow, newAgentCol, walls)) {
 					int boxRow = this.agentRow + Command.dirToRowChange(c.dir2);
 					int boxCol = this.agentCol + Command.dirToColChange(c.dir2);
 					// .. and there's a box in "dir2" of the agent
@@ -131,8 +129,8 @@ public class Node {
 		return expandedNodes;
 	}
 
-	private boolean cellIsFree(int row, int col) {
-		return !this.walls[row][col] && this.boxes[row][col] == 0;
+	private boolean cellIsFree(int row, int col, boolean[][] walls) {
+		return !walls[row][col] && this.boxes[row][col] == 0;
 	}
 
 	private boolean boxAt(int row, int col) {
@@ -142,7 +140,7 @@ public class Node {
 	private Node ChildNode() {
 		Node copy = new Node(this, maxRow, maxCol);
 		for (int row = 0; row < maxRow; row++) {
-			System.arraycopy(this.walls[row], 0, copy.walls[row], 0, maxCol);
+			//System.arraycopy(this.walls[row], 0, copy.walls[row], 0, maxCol);
 			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxCol);
 			System.arraycopy(this.goals[row], 0, copy.goals[row], 0, maxCol);
 		}
@@ -168,7 +166,7 @@ public class Node {
 			result = prime * result + this.agentRow;
 			result = prime * result + Arrays.deepHashCode(this.boxes);
 			result = prime * result + Arrays.deepHashCode(this.goals);
-			result = prime * result + Arrays.deepHashCode(this.walls);
+			//result = prime * result + Arrays.deepHashCode(this.walls);
 			this._hash = result;
 		}
 		return this._hash;
@@ -189,8 +187,8 @@ public class Node {
 			return false;
 		if (!Arrays.deepEquals(this.goals, other.goals))
 			return false;
-		if (!Arrays.deepEquals(this.walls, other.walls))
-			return false;
+		/*if (!Arrays.deepEquals(this.walls, other.walls))
+			return false;*/
 		return true;
 	}
 
@@ -198,17 +196,17 @@ public class Node {
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		for (int row = 0; row < maxRow; row++) {
-			if (!this.walls[row][0]) {
+			/*if (!this.walls[row][0]) {
 				break;
-			}
+			}*/
 			for (int col = 0; col < maxCol; col++) {
 				if (this.boxes[row][col] > 0) {
 					s.append(this.boxes[row][col]);
 				} else if (this.goals[row][col] > 0) {
 					s.append(this.goals[row][col]);
-				} else if (this.walls[row][col]) {
+				} /*else if (this.walls[row][col]) {
 					s.append("+");
-				} else if (row == this.agentRow && col == this.agentCol) {
+				} */else if (row == this.agentRow && col == this.agentCol) {
 					s.append("0");
 				} else {
 					s.append(" ");

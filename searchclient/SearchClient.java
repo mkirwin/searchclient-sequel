@@ -12,6 +12,7 @@ import searchclient.Heuristic.*;
 
 public class SearchClient {
 	public Node initialState;
+	public boolean[][] walls;
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
 		// Read lines specifying colors
@@ -27,6 +28,7 @@ public class SearchClient {
 
 		ArrayList<String> readLines = new ArrayList<>();
 
+		// read through file first time to get maxRow and maxCol
 		while (!line.equals("")) {
 			maxRow++;
 			int currentColLen = line.length();
@@ -37,6 +39,7 @@ public class SearchClient {
 			line = serverMessages.readLine();
 		}
 
+		this.walls = new boolean[maxRow][maxCol];
 		this.initialState = new Node(null, maxRow, maxCol);
 
 		for (int row = 0; row < readLines.size(); row++) {
@@ -45,7 +48,7 @@ public class SearchClient {
 				char chr = currentLine.charAt(col);
 
 				if (chr == '+') { // Wall.
-					this.initialState.walls[row][col] = true;
+					this.walls[row][col] = true;
 				} else if ('0' <= chr && chr <= '9') { // Agent.
 					if (agentFound) {
 						System.err.println("Error, not a single agent level");
@@ -90,7 +93,7 @@ public class SearchClient {
 			}
 
 			strategy.addToExplored(leafNode);
-			for (Node n : leafNode.getExpandedNodes()) { // The list of expanded nodes is shuffled randomly; see Node.java.
+			for (Node n : leafNode.getExpandedNodes(this.walls)) { // The list of expanded nodes is shuffled randomly; see Node.java.
 				if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
 					strategy.addToFrontier(n);
 				}
