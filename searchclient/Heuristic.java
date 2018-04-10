@@ -228,7 +228,7 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
 	public int h(Node n) {
-		int returnSum = 0;
+		/*int returnSum = 0;
 		for (int row = 0; row < n.maxRow; row++) {
 			for (int col = 0; col < n.maxCol; col++) {
 				if (this.goals[row][col] == Character.toLowerCase(n.boxes[row][col])) {
@@ -236,7 +236,40 @@ public abstract class Heuristic implements Comparator<Node> {
 				}
 			}
 		}
-		return returnSum;
+		return returnSum;*/
+        // Track goal node and closest row
+        int returnSum = 0;
+        char[][] boxes = n.boxes;
+        for (int row = 0; row < n.maxRow; row++) {
+            for (int col = 0; col < n.maxCol; col++) {
+
+                char currentChar = Character.toLowerCase(boxes[row][col]);
+                //if current value is a box
+                if (currentChar != '\u0000') {
+                    if (goalLocations.containsKey(currentChar)) {
+                        //find goal locations
+                        ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
+                        int closestDistance = 100000000;
+                        int closestX = -10;
+                        int closestY = -10;
+                        for (Point location : currentGoalLocations) {
+                            int goalRow = location.getX();
+                            int goalCol = location.getY();
+
+                            // Here, we use the "Real" Shortest Distance, instead of the Manhattan.
+                            int distance = distanceBetweenTwoPoints(row, col, goalRow, goalCol);
+                            if (distance < closestDistance) {
+                                closestDistance = distance;
+                                closestX = goalRow;
+                                closestY = goalCol;
+                            }
+                        }
+                        returnSum += closestDistance;
+                    }
+                }
+            }
+        }
+        return returnSum;
 	}
 
 	public abstract int f(Node n);
