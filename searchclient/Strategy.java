@@ -93,7 +93,49 @@ public abstract class Strategy {
 	}
 
 	public static class StrategyDFS extends Strategy {
+
+		private ArrayDeque<Node> frontier;
+		private HashSet<Node> frontierSet;
+
 		public StrategyDFS() {
+			super();
+			frontier = new ArrayDeque<Node>();
+			frontierSet = new HashSet<Node>();
+		}
+
+		@Override
+		public Node getAndRemoveLeaf() {
+			Node n = frontier.pollFirst();
+			frontierSet.remove(n);
+			return n;
+		}
+
+		@Override
+		public void addToFrontier(Node n) {
+			frontier.addFirst(n);
+			frontierSet.add(n);
+		}
+
+		@Override
+		public int countFrontier() {
+			return frontier.size();
+		}
+
+		@Override
+		public boolean frontierIsEmpty() {
+			return frontier.isEmpty();
+		}
+
+		@Override
+		public boolean inFrontier(Node n) {
+			return frontierSet.contains(n);
+		}
+
+		@Override
+		public String toString() {
+			return "Depth-first Search";
+		}
+		/*public StrategyDFS() {
 			super();
 			throw new NotImplementedException();
 		}
@@ -126,7 +168,7 @@ public abstract class Strategy {
 		@Override
 		public String toString() {
 			return "Depth-first Search";
-		}
+		}*/
 	}
 
 	// Ex 3: Best-first Search uses a priority queue (Java contains no implementation of a Heap data structure)
