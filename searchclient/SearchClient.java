@@ -3,6 +3,7 @@ package searchclient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import searchclient.Memory;
@@ -20,13 +21,29 @@ public class SearchClient {
 			System.exit(1);
 		}
 
-		int row = 0;
+		//int row = 0;
+		int maxRow = 0;
+		int maxCol = 0;
 		boolean agentFound = false;
 		this.initialState = new Node(null);
 
+		ArrayList<String> readLines = new ArrayList<>();
+		readLines.add(line);
+
 		while (!line.equals("")) {
-			for (int col = 0; col < line.length(); col++) {
-				char chr = line.charAt(col);
+			maxRow++;
+			int currentColLen = line.length();
+			if (currentColLen > maxCol) {
+				maxCol = currentColLen;
+			}
+			readLines.add(line);
+			line = serverMessages.readLine();
+		}
+
+		for (int row = 0; row < readLines.size(); row++) {
+			String currentLine = readLines.get(row);
+			for (int col = 0; col < currentLine.length(); col++) {
+				char chr = currentLine.charAt(col);
 
 				if (chr == '+') { // Wall.
 					this.initialState.walls[row][col] = true;
@@ -49,8 +66,6 @@ public class SearchClient {
 					System.exit(1);
 				}
 			}
-			line = serverMessages.readLine();
-			row++;
 		}
 	}
 

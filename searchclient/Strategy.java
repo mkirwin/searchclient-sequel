@@ -135,40 +135,6 @@ public abstract class Strategy {
 		public String toString() {
 			return "Depth-first Search";
 		}
-		/*public StrategyDFS() {
-			super();
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public Node getAndRemoveLeaf() {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void addToFrontier(Node n) {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int countFrontier() {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean frontierIsEmpty() {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean inFrontier(Node n) {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public String toString() {
-			return "Depth-first Search";
-		}*/
 	}
 
 	// Ex 3: Best-first Search uses a priority queue (Java contains no implementation of a Heap data structure)
