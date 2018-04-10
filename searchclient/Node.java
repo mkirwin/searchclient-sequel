@@ -31,7 +31,7 @@ public class Node {
 
 	//public boolean[][] walls; // = new boolean[MAX_ROW][MAX_COL];
 	public char[][] boxes; // = new char[MAX_ROW][MAX_COL];
-	public char[][] goals; // = new char[MAX_ROW][MAX_COL];
+	//public char[][] goals; // = new char[MAX_ROW][MAX_COL];
 
 	public Node parent;
 	public Command action;
@@ -46,7 +46,7 @@ public class Node {
 		this.maxCol = maxCol;
 		//this.walls = new boolean[maxRow][maxCol];
 		this.boxes = new char[maxRow][maxCol];
-		this.goals = new char[maxRow][maxCol];
+		//this.goals = new char[maxRow][maxCol];
 		if (parent == null) {
 			this.g = 0;
 		} else {
@@ -62,7 +62,7 @@ public class Node {
 		return this.parent == null;
 	}
 
-	public boolean isGoalState() {
+	public boolean isGoalState(char[][] goals) {
 		for (int row = 1; row < maxRow - 1; row++) {
 			for (int col = 1; col < maxCol - 1; col++) {
 				char g = goals[row][col];
@@ -142,7 +142,7 @@ public class Node {
 		for (int row = 0; row < maxRow; row++) {
 			//System.arraycopy(this.walls[row], 0, copy.walls[row], 0, maxCol);
 			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxCol);
-			System.arraycopy(this.goals[row], 0, copy.goals[row], 0, maxCol);
+			//System.arraycopy(this.goals[row], 0, copy.goals[row], 0, maxCol);
 		}
 		return copy;
 	}
@@ -165,7 +165,7 @@ public class Node {
 			result = prime * result + this.agentCol;
 			result = prime * result + this.agentRow;
 			result = prime * result + Arrays.deepHashCode(this.boxes);
-			result = prime * result + Arrays.deepHashCode(this.goals);
+			//result = prime * result + Arrays.deepHashCode(this.goals);
 			//result = prime * result + Arrays.deepHashCode(this.walls);
 			this._hash = result;
 		}
@@ -185,9 +185,9 @@ public class Node {
 			return false;
 		if (!Arrays.deepEquals(this.boxes, other.boxes))
 			return false;
-		if (!Arrays.deepEquals(this.goals, other.goals))
+		/*if (!Arrays.deepEquals(this.goals, other.goals))
 			return false;
-		/*if (!Arrays.deepEquals(this.walls, other.walls))
+		if (!Arrays.deepEquals(this.walls, other.walls))
 			return false;*/
 		return true;
 	}
@@ -202,9 +202,9 @@ public class Node {
 			for (int col = 0; col < maxCol; col++) {
 				if (this.boxes[row][col] > 0) {
 					s.append(this.boxes[row][col]);
-				} else if (this.goals[row][col] > 0) {
+				} /*else if (this.goals[row][col] > 0) {
 					s.append(this.goals[row][col]);
-				} /*else if (this.walls[row][col]) {
+				} else if (this.walls[row][col]) {
 					s.append("+");
 				} */else if (row == this.agentRow && col == this.agentCol) {
 					s.append("0");

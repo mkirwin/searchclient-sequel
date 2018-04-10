@@ -13,6 +13,7 @@ import searchclient.Heuristic.*;
 public class SearchClient {
 	public Node initialState;
 	public boolean[][] walls;
+	public char[][] goals;
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
 		// Read lines specifying colors
@@ -40,6 +41,7 @@ public class SearchClient {
 		}
 
 		this.walls = new boolean[maxRow][maxCol];
+		this.goals = new char[maxRow][maxCol];
 		this.initialState = new Node(null, maxRow, maxCol);
 
 		for (int row = 0; row < readLines.size(); row++) {
@@ -60,7 +62,7 @@ public class SearchClient {
 				} else if ('A' <= chr && chr <= 'Z') { // Box.
 					this.initialState.boxes[row][col] = chr;
 				} else if ('a' <= chr && chr <= 'z') { // Goal.
-					this.initialState.goals[row][col] = chr;
+					this.goals[row][col] = chr;
 				} else if (chr == ' ') {
 					// Free space.
 				} else {
@@ -88,7 +90,7 @@ public class SearchClient {
 
 			Node leafNode = strategy.getAndRemoveLeaf();
 
-			if (leafNode.isGoalState()) {
+			if (leafNode.isGoalState(this.goals)) {
 				return leafNode.extractPlan();
 			}
 
