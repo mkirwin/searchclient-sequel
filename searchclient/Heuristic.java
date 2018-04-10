@@ -5,12 +5,23 @@ import java.util.Comparator;
 import searchclient.NotImplementedException;
 
 public abstract class Heuristic implements Comparator<Node> {
-	public Heuristic(Node initialState) {
+	char[][] goals;
+
+	public Heuristic(Node initialState, char[][] goals) {
+		this.goals = goals;
 		// Here's a chance to pre-process the static parts of the level.
 	}
 
 	public int h(Node n) {
-		throw new NotImplementedException();
+		int returnSum = 0;
+		for (int row = 0; row < n.maxRow; row++) {
+			for (int col = 0; col < n.maxCol; col++) {
+				if (this.goals[row][col] == Character.toLowerCase(n.boxes[row][col])) {
+					returnSum++;
+				}
+			}
+		}
+		return returnSum;
 	}
 
 	public abstract int f(Node n);
@@ -21,8 +32,8 @@ public abstract class Heuristic implements Comparator<Node> {
 	}
 
 	public static class AStar extends Heuristic {
-		public AStar(Node initialState) {
-			super(initialState);
+		public AStar(Node initialState, char[][] goals) {
+			super(initialState, goals);
 		}
 
 		@Override
@@ -39,8 +50,8 @@ public abstract class Heuristic implements Comparator<Node> {
 	public static class WeightedAStar extends Heuristic {
 		private int W;
 
-		public WeightedAStar(Node initialState, int W) {
-			super(initialState);
+		public WeightedAStar(Node initialState, char[][] goals, int W) {
+			super(initialState, goals);
 			this.W = W;
 		}
 
@@ -56,8 +67,8 @@ public abstract class Heuristic implements Comparator<Node> {
 	}
 
 	public static class Greedy extends Heuristic {
-		public Greedy(Node initialState) {
-			super(initialState);
+		public Greedy(Node initialState, char[][] goals) {
+			super(initialState, goals);
 		}
 
 		@Override

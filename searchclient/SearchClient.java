@@ -123,14 +123,14 @@ public class SearchClient {
                     strategy = new StrategyDFS();
                     break;
                 case "-astar":
-                    strategy = new StrategyBestFirst(new AStar(client.initialState));
+                    strategy = new StrategyBestFirst(new AStar(client.initialState, client.goals));
                     break;
                 case "-wastar":
                     // You're welcome to test WA* out with different values, but for the report you must at least indicate benchmarks for W = 5.
-                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, 5));
+                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, client.goals, 5));
                     break;
                 case "-greedy":
-                    strategy = new StrategyBestFirst(new Greedy(client.initialState));
+                    strategy = new StrategyBestFirst(new Greedy(client.initialState, client.goals));
                     break;
                 default:
                     strategy = new StrategyBFS();
