@@ -21,14 +21,11 @@ public class SearchClient {
 			System.exit(1);
 		}
 
-		//int row = 0;
 		int maxRow = 0;
 		int maxCol = 0;
 		boolean agentFound = false;
-		this.initialState = new Node(null);
 
 		ArrayList<String> readLines = new ArrayList<>();
-		readLines.add(line);
 
 		while (!line.equals("")) {
 			maxRow++;
@@ -39,6 +36,8 @@ public class SearchClient {
 			readLines.add(line);
 			line = serverMessages.readLine();
 		}
+
+		this.initialState = new Node(null, maxRow, maxCol);
 
 		for (int row = 0; row < readLines.size(); row++) {
 			String currentLine = readLines.get(row);
