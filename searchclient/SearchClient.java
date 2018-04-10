@@ -3,6 +3,7 @@ package searchclient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import searchclient.Memory;
@@ -11,6 +12,8 @@ import searchclient.Heuristic.*;
 
 public class SearchClient {
 	public Node initialState;
+	public boolean[][] walls;
+	public char[][] goals;
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
 		// Read lines specifying colors
@@ -20,16 +23,34 @@ public class SearchClient {
 			System.exit(1);
 		}
 
-		int row = 0;
+		int maxRow = 0;
+		int maxCol = 0;
 		boolean agentFound = false;
-		this.initialState = new Node(null);
 
+		ArrayList<String> readLines = new ArrayList<>();
+
+		// read through file first time to get maxRow and maxCol
 		while (!line.equals("")) {
-			for (int col = 0; col < line.length(); col++) {
-				char chr = line.charAt(col);
+			maxRow++;
+			int currentColLen = line.length();
+			if (currentColLen > maxCol) {
+				maxCol = currentColLen;
+			}
+			readLines.add(line);
+			line = serverMessages.readLine();
+		}
+
+		this.walls = new boolean[maxRow][maxCol];
+		this.goals = new char[maxRow][maxCol];
+		this.initialState = new Node(null, maxRow, maxCol);
+
+		for (int row = 0; row < readLines.size(); row++) {
+			String currentLine = readLines.get(row);
+			for (int col = 0; col < currentLine.length(); col++) {
+				char chr = currentLine.charAt(col);
 
 				if (chr == '+') { // Wall.
-					this.initialState.walls[row][col] = true;
+					this.walls[row][col] = true;
 				} else if ('0' <= chr && chr <= '9') { // Agent.
 					if (agentFound) {
 						System.err.println("Error, not a single agent level");
@@ -41,7 +62,7 @@ public class SearchClient {
 				} else if ('A' <= chr && chr <= 'Z') { // Box.
 					this.initialState.boxes[row][col] = chr;
 				} else if ('a' <= chr && chr <= 'z') { // Goal.
-					this.initialState.goals[row][col] = chr;
+					this.goals[row][col] = chr;
 				} else if (chr == ' ') {
 					// Free space.
 				} else {
@@ -49,8 +70,6 @@ public class SearchClient {
 					System.exit(1);
 				}
 			}
-			line = serverMessages.readLine();
-			row++;
 		}
 	}
 
@@ -71,12 +90,12 @@ public class SearchClient {
 
 			Node leafNode = strategy.getAndRemoveLeaf();
 
-			if (leafNode.isGoalState()) {
+			if (leafNode.isGoalState(this.goals)) {
 				return leafNode.extractPlan();
 			}
 
 			strategy.addToExplored(leafNode);
-			for (Node n : leafNode.getExpandedNodes()) { // The list of expanded nodes is shuffled randomly; see Node.java.
+			for (Node n : leafNode.getExpandedNodes(this.walls)) { // The list of expanded nodes is shuffled randomly; see Node.java.
 				if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
 					strategy.addToFrontier(n);
 				}
@@ -104,14 +123,14 @@ public class SearchClient {
                     strategy = new StrategyDFS();
                     break;
                 case "-astar":
-                    strategy = new StrategyBestFirst(new AStar(client.initialState));
+                    strategy = new StrategyBestFirst(new AStar(client.initialState, client.goals, client.walls));
                     break;
                 case "-wastar":
                     // You're welcome to test WA* out with different values, but for the report you must at least indicate benchmarks for W = 5.
-                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, 5));
+                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, client.goals, client.walls, 5));
                     break;
                 case "-greedy":
-                    strategy = new StrategyBestFirst(new Greedy(client.initialState));
+                    strategy = new StrategyBestFirst(new Greedy(client.initialState, client.goals, client.walls));
                     break;
                 default:
                     strategy = new StrategyBFS();

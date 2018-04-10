@@ -11,12 +11,14 @@ import searchclient.Command.Type;
 public class Node {
 	private static final Random RND = new Random(1);
 
-	public static int MAX_ROW = 70;
-	public static int MAX_COL = 70;
+	//public static int MAX_ROW = 70;
+	//public static int MAX_COL = 70;
 
 	public int agentRow;
 	public int agentCol;
 
+	public int maxRow;
+	public int maxCol;
 	// Arrays are indexed from the top-left of the level, with first index being row and second being column.
 	// Row 0: (0,0) (0,1) (0,2) (0,3) ...
 	// Row 1: (1,0) (1,1) (1,2) (1,3) ...
@@ -27,9 +29,9 @@ public class Node {
 	// this.walls[row][col] is true if there's a wall at (row, col)
 	//
 
-	public boolean[][] walls = new boolean[MAX_ROW][MAX_COL];
-	public char[][] boxes = new char[MAX_ROW][MAX_COL];
-	public char[][] goals = new char[MAX_ROW][MAX_COL];
+	//public boolean[][] walls; // = new boolean[MAX_ROW][MAX_COL];
+	public char[][] boxes; // = new char[MAX_ROW][MAX_COL];
+	//public char[][] goals; // = new char[MAX_ROW][MAX_COL];
 
 	public Node parent;
 	public Command action;
@@ -38,8 +40,13 @@ public class Node {
 	
 	private int _hash = 0;
 
-	public Node(Node parent) {
+	public Node(Node parent, int maxRow, int maxCol) {
 		this.parent = parent;
+		this.maxRow = maxRow;
+		this.maxCol = maxCol;
+		//this.walls = new boolean[maxRow][maxCol];
+		this.boxes = new char[maxRow][maxCol];
+		//this.goals = new char[maxRow][maxCol];
 		if (parent == null) {
 			this.g = 0;
 		} else {
@@ -55,9 +62,9 @@ public class Node {
 		return this.parent == null;
 	}
 
-	public boolean isGoalState() {
-		for (int row = 1; row < MAX_ROW - 1; row++) {
-			for (int col = 1; col < MAX_COL - 1; col++) {
+	public boolean isGoalState(char[][] goals) {
+		for (int row = 1; row < maxRow - 1; row++) {
+			for (int col = 1; col < maxCol - 1; col++) {
 				char g = goals[row][col];
 				char b = Character.toLowerCase(boxes[row][col]);
 				if (g > 0 && b != g) {
@@ -68,7 +75,7 @@ public class Node {
 		return true;
 	}
 
-	public ArrayList<Node> getExpandedNodes() {
+	public ArrayList<Node> getExpandedNodes(boolean[][] walls) {
 		ArrayList<Node> expandedNodes = new ArrayList<Node>(Command.EVERY.length);
 		for (Command c : Command.EVERY) {
 			// Determine applicability of action
@@ -77,7 +84,7 @@ public class Node {
 
 			if (c.actionType == Type.Move) {
 				// Check if there's a wall or box on the cell to which the agent is moving
-				if (this.cellIsFree(newAgentRow, newAgentCol)) {
+				if (this.cellIsFree(newAgentRow, newAgentCol, walls)) {
 					Node n = this.ChildNode();
 					n.action = c;
 					n.agentRow = newAgentRow;
@@ -90,7 +97,7 @@ public class Node {
 					int newBoxRow = newAgentRow + Command.dirToRowChange(c.dir2);
 					int newBoxCol = newAgentCol + Command.dirToColChange(c.dir2);
 					// .. and that new cell of box is free
-					if (this.cellIsFree(newBoxRow, newBoxCol)) {
+					if (this.cellIsFree(newBoxRow, newBoxCol, walls)) {
 						Node n = this.ChildNode();
 						n.action = c;
 						n.agentRow = newAgentRow;
@@ -102,7 +109,7 @@ public class Node {
 				}
 			} else if (c.actionType == Type.Pull) {
 				// Cell is free where agent is going
-				if (this.cellIsFree(newAgentRow, newAgentCol)) {
+				if (this.cellIsFree(newAgentRow, newAgentCol, walls)) {
 					int boxRow = this.agentRow + Command.dirToRowChange(c.dir2);
 					int boxCol = this.agentCol + Command.dirToColChange(c.dir2);
 					// .. and there's a box in "dir2" of the agent
@@ -122,8 +129,8 @@ public class Node {
 		return expandedNodes;
 	}
 
-	private boolean cellIsFree(int row, int col) {
-		return !this.walls[row][col] && this.boxes[row][col] == 0;
+	private boolean cellIsFree(int row, int col, boolean[][] walls) {
+		return !walls[row][col] && this.boxes[row][col] == 0;
 	}
 
 	private boolean boxAt(int row, int col) {
@@ -131,11 +138,11 @@ public class Node {
 	}
 
 	private Node ChildNode() {
-		Node copy = new Node(this);
-		for (int row = 0; row < MAX_ROW; row++) {
-			System.arraycopy(this.walls[row], 0, copy.walls[row], 0, MAX_COL);
-			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, MAX_COL);
-			System.arraycopy(this.goals[row], 0, copy.goals[row], 0, MAX_COL);
+		Node copy = new Node(this, maxRow, maxCol);
+		for (int row = 0; row < maxRow; row++) {
+			//System.arraycopy(this.walls[row], 0, copy.walls[row], 0, maxCol);
+			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxCol);
+			//System.arraycopy(this.goals[row], 0, copy.goals[row], 0, maxCol);
 		}
 		return copy;
 	}
@@ -158,8 +165,8 @@ public class Node {
 			result = prime * result + this.agentCol;
 			result = prime * result + this.agentRow;
 			result = prime * result + Arrays.deepHashCode(this.boxes);
-			result = prime * result + Arrays.deepHashCode(this.goals);
-			result = prime * result + Arrays.deepHashCode(this.walls);
+			//result = prime * result + Arrays.deepHashCode(this.goals);
+			//result = prime * result + Arrays.deepHashCode(this.walls);
 			this._hash = result;
 		}
 		return this._hash;
@@ -178,28 +185,28 @@ public class Node {
 			return false;
 		if (!Arrays.deepEquals(this.boxes, other.boxes))
 			return false;
-		if (!Arrays.deepEquals(this.goals, other.goals))
+		/*if (!Arrays.deepEquals(this.goals, other.goals))
 			return false;
 		if (!Arrays.deepEquals(this.walls, other.walls))
-			return false;
+			return false;*/
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		for (int row = 0; row < MAX_ROW; row++) {
-			if (!this.walls[row][0]) {
+		for (int row = 0; row < maxRow; row++) {
+			/*if (!this.walls[row][0]) {
 				break;
-			}
-			for (int col = 0; col < MAX_COL; col++) {
+			}*/
+			for (int col = 0; col < maxCol; col++) {
 				if (this.boxes[row][col] > 0) {
 					s.append(this.boxes[row][col]);
-				} else if (this.goals[row][col] > 0) {
+				} /*else if (this.goals[row][col] > 0) {
 					s.append(this.goals[row][col]);
 				} else if (this.walls[row][col]) {
 					s.append("+");
-				} else if (row == this.agentRow && col == this.agentCol) {
+				} */else if (row == this.agentRow && col == this.agentCol) {
 					s.append("0");
 				} else {
 					s.append(" ");
