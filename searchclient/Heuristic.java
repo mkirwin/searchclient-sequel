@@ -8,6 +8,7 @@ public abstract class Heuristic implements Comparator<Node> {
 	char[][] goals;
 	int maxRow;
 	int maxCol;
+	int BIG_NUMBER_CONST = 100000000;
 
     // Note: character is a goal represented by an lowercase letter, and the value is is a list of locations of that goal
     // This stores a given goal (character) and all of the points at which that goal is found.
@@ -67,7 +68,7 @@ public abstract class Heuristic implements Comparator<Node> {
          */
         // The 'dummy' wall, AKA a filler object if a point is a wall in the point distances array object
         int[][] wallFiller = new int[rowCount][columnCount];
-        int WALL_INT_CONSTANT = 100000000;
+        int WALL_INT_CONSTANT = BIG_NUMBER_CONST;
 
         // Populate wall filler
         for (int row = 0; row < rowCount; row++) {
@@ -228,30 +229,25 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
 	public int h(Node n) {
-		/*int returnSum = 0;
-		for (int row = 0; row < n.maxRow; row++) {
-			for (int col = 0; col < n.maxCol; col++) {
-				if (this.goals[row][col] == Character.toLowerCase(n.boxes[row][col])) {
-					returnSum++;
-				}
-			}
-		}
-		return returnSum;*/
         // Track goal node and closest row
         int returnSum = 0;
         char[][] boxes = n.boxes;
+        int closestAgentBoxDistance = BIG_NUMBER_CONST;
         for (int row = 0; row < n.maxRow; row++) {
             for (int col = 0; col < n.maxCol; col++) {
-
                 char currentChar = Character.toLowerCase(boxes[row][col]);
                 //if current value is a box
                 if (currentChar != '\u0000') {
                     if (goalLocations.containsKey(currentChar)) {
+                        //see if this box is closest to the agent and if so update closestAgentBoxDistance
+                        int distanceToAgent = distanceBetweenTwoPoints(row, col, n.agentRow, n.agentCol);
+                        //make sure closest box is not already on a node
+                        if (distanceToAgent < closestAgentBoxDistance) {
+                            closestAgentBoxDistance = distanceToAgent;
+                        }
                         //find goal locations
                         ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
-                        int closestDistance = 100000000;
-                        int closestX = -10;
-                        int closestY = -10;
+                        int closestDistance = BIG_NUMBER_CONST;
                         for (Point location : currentGoalLocations) {
                             int goalRow = location.getX();
                             int goalCol = location.getY();
@@ -260,8 +256,6 @@ public abstract class Heuristic implements Comparator<Node> {
                             int distance = distanceBetweenTwoPoints(row, col, goalRow, goalCol);
                             if (distance < closestDistance) {
                                 closestDistance = distance;
-                                closestX = goalRow;
-                                closestY = goalCol;
                             }
                         }
                         returnSum += closestDistance;
@@ -269,6 +263,10 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
+        if (closestAgentBoxDistance != BIG_NUMBER_CONST) {
+            returnSum += closestAgentBoxDistance;
+        }
+
         return returnSum;
 	}
 
