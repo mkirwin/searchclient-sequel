@@ -235,13 +235,16 @@ public abstract class Heuristic implements Comparator<Node> {
         int closestAgentBoxDistance = BIG_NUMBER_CONST;
         for (int row = 0; row < n.maxRow; row++) {
             for (int col = 0; col < n.maxCol; col++) {
-
                 char currentChar = Character.toLowerCase(boxes[row][col]);
                 //if current value is a box
                 if (currentChar != '\u0000') {
                     if (goalLocations.containsKey(currentChar)) {
-                        //see if this box is closest to the agent
-
+                        //see if this box is closest to the agent and if so update closestAgentBoxDistance
+                        int distanceToAgent = distanceBetweenTwoPoints(row, col, n.agentRow, n.agentCol);
+                        //make sure closest box is not already on a node
+                        if (distanceToAgent < closestAgentBoxDistance) {
+                            closestAgentBoxDistance = distanceToAgent;
+                        }
                         //find goal locations
                         ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
                         int closestDistance = BIG_NUMBER_CONST;
@@ -260,6 +263,10 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
+        if (closestAgentBoxDistance != BIG_NUMBER_CONST) {
+            returnSum += closestAgentBoxDistance;
+        }
+
         return returnSum;
 	}
 
