@@ -1,5 +1,9 @@
 package searchclient;
 
+/** A simple Point class to store coordinates.
+ * Used to pass coordinates in Heuristic.
+ * Helps with code readability and modularity.
+ */
 public class Point {
     public int x;
     public int y;
@@ -43,9 +47,9 @@ public class Point {
     @Override
     public String toString() {
         return "Point{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
+            "x=" + x +
+            ", y=" + y +
+            '}';
     }
 
 }

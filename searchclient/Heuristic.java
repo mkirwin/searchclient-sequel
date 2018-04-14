@@ -5,10 +5,10 @@ import java.util.*;
 import searchclient.NotImplementedException;
 
 public abstract class Heuristic implements Comparator<Node> {
-	char[][] goals;
-	int maxRow;
-	int maxCol;
-	int BIG_NUMBER_CONST = 100000000;
+    char[][] goals;
+    int maxRow;
+    int maxCol;
+    int BIG_NUMBER_CONST = 100000000;
 
     // Note: character is a goal represented by an lowercase letter, and the value is is a list of locations of that goal
     // This stores a given goal (character) and all of the points at which that goal is found.
@@ -17,16 +17,16 @@ public abstract class Heuristic implements Comparator<Node> {
     /** pointDistances is a representation of how we are going to store the distances between points. We will have a grid that is the
      * same size as the level. Then for each coordinate on the grid, there will be another grid that is the same size as the
      * level grid.*/
-/*        0 1 2
-          0 X + +
-          1 + + +
-          2 + + +
-          In the X grid the following grid is stored; the value at each coordinate gives the distance between the '0-point'
-          and the given coordinate.
-          0 1 2
-          1 2 3
-          2 3 4
-          */
+    /*        0 1 2
+              0 X + +
+              1 + + +
+              2 + + +
+              In the X grid the following grid is stored; the value at each coordinate gives the distance between the '0-point'
+              and the given coordinate.
+              0 1 2
+              1 2 3
+              2 3 4
+              */
 
     // Declare pointDistances, which will store our 'map' of the level. Now we can reference the "Real" Distance between two points
     // without calculating each time.
@@ -147,9 +147,9 @@ public abstract class Heuristic implements Comparator<Node> {
                             int currentDistance = currentPointNode.getPreviousDistance() + 1;
                             pointDistances[row][col][currentX][currentY] = currentDistance;
 
-                        /* Add points around it to frontier if they aren't already visited or in frontier.
-                         * This will be in a 4-unit 'cross' around the current point. The coordinates directly
-                         * above, below, to the left, and to the right will be checked. */
+                            /* Add points around it to frontier if they aren't already visited or in frontier.
+                             * This will be in a 4-unit 'cross' around the current point. The coordinates directly
+                             * above, below, to the left, and to the right will be checked. */
 
                             // See if point above is anything
                             if (currentY > 0) {
@@ -216,7 +216,7 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
-	}
+    }
 
     // Finds manhattan distance of two points aka x distance away + y distance away
     public int manhattanDistance(int x1, int y1, int x2, int y2){
@@ -228,7 +228,7 @@ public abstract class Heuristic implements Comparator<Node> {
         return pointDistances[x1][y1][x2][y2];
     }
 
-	public int h(Node n) {
+    public int h(Node n) {
         // Track goal node and closest row
         int returnSum = 0;
         char[][] boxes = n.boxes;
@@ -268,63 +268,63 @@ public abstract class Heuristic implements Comparator<Node> {
         }
 
         return returnSum;
-	}
+    }
 
-	public abstract int f(Node n);
+    public abstract int f(Node n);
 
-	@Override
-	public int compare(Node n1, Node n2) {
-		return this.f(n1) - this.f(n2);
-	}
+    @Override
+    public int compare(Node n1, Node n2) {
+        return this.f(n1) - this.f(n2);
+    }
 
-	public static class AStar extends Heuristic {
-		public AStar(Node initialState, char[][] goals, boolean[][] walls) {
-			super(initialState, goals, walls);
-		}
+    public static class AStar extends Heuristic {
+        public AStar(Node initialState, char[][] goals, boolean[][] walls) {
+            super(initialState, goals, walls);
+        }
 
-		@Override
-		public int f(Node n) {
-			return n.g() + this.h(n);
-		}
+        @Override
+        public int f(Node n) {
+            return n.g() + this.h(n);
+        }
 
-		@Override
-		public String toString() {
-			return "A* evaluation";
-		}
-	}
+        @Override
+        public String toString() {
+            return "A* evaluation";
+        }
+    }
 
-	public static class WeightedAStar extends Heuristic {
-		private int W;
+    public static class WeightedAStar extends Heuristic {
+        private int W;
 
-		public WeightedAStar(Node initialState, char[][] goals, boolean[][] walls, int W) {
-			super(initialState, goals, walls);
-			this.W = W;
-		}
+        public WeightedAStar(Node initialState, char[][] goals, boolean[][] walls, int W) {
+            super(initialState, goals, walls);
+            this.W = W;
+        }
 
-		@Override
-		public int f(Node n) {
-			return n.g() + this.W * this.h(n);
-		}
+        @Override
+        public int f(Node n) {
+            return n.g() + this.W * this.h(n);
+        }
 
-		@Override
-		public String toString() {
-			return String.format("WA*(%d) evaluation", this.W);
-		}
-	}
+        @Override
+        public String toString() {
+            return String.format("WA*(%d) evaluation", this.W);
+        }
+    }
 
-	public static class Greedy extends Heuristic {
-		public Greedy(Node initialState, char[][] goals, boolean[][] walls) {
-			super(initialState, goals, walls);
-		}
+    public static class Greedy extends Heuristic {
+        public Greedy(Node initialState, char[][] goals, boolean[][] walls) {
+            super(initialState, goals, walls);
+        }
 
-		@Override
-		public int f(Node n) {
-			return this.h(n);
-		}
+        @Override
+        public int f(Node n) {
+            return this.h(n);
+        }
 
-		@Override
-		public String toString() {
-			return "Greedy evaluation";
-		}
-	}
+        @Override
+        public String toString() {
+            return "Greedy evaluation";
+        }
+    }
 }
